@@ -1,0 +1,20 @@
+[
+{
+  "directory": "/home/novak/code/C/c_allocator/build",
+  "command": "/usr/bin/cc  -I/home/novak/code/C/c_allocator/include -std=gnu11 -Wall -Wextra -o CMakeFiles/exe.dir/src/main.c.o -c /home/novak/code/C/c_allocator/src/main.c",
+  "file": "/home/novak/code/C/c_allocator/src/main.c",
+  "output": "CMakeFiles/exe.dir/src/main.c.o"
+},
+{
+  "directory": "/home/novak/code/C/c_allocator/build",
+  "command": "/usr/bin/cc  -I/home/novak/code/C/c_allocator/include -std=gnu11 -Wall -Wextra -o CMakeFiles/exe.dir/src/n_allocator.c.o -c /home/novak/code/C/c_allocator/src/n_allocator.c",
+  "file": "/home/novak/code/C/c_allocator/src/n_allocator.c",
+  "output": "CMakeFiles/exe.dir/src/n_allocator.c.o"
+},
+{
+  "directory": "/home/novak/code/C/c_allocator/build",
+  "command": "/usr/bin/cc  -I/home/novak/code/C/c_allocator/include -std=gnu11 -Wall -Wextra -o CMakeFiles/exe.dir/src/mem_chunk.c.o -c /home/novak/code/C/c_allocator/src/mem_chunk.c",
+  "file": "/home/novak/code/C/c_allocator/src/mem_chunk.c",
+  "output": "CMakeFiles/exe.dir/src/mem_chunk.c.o"
+}
+]

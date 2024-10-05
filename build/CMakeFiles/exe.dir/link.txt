@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/exe.dir/src/main.c.o CMakeFiles/exe.dir/src/n_allocator.c.o CMakeFiles/exe.dir/src/mem_chunk.c.o -o exe 
