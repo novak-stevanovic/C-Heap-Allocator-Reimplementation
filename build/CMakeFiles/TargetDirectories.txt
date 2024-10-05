@@ -1,3 +1,0 @@
-/home/novak/code/C/c_allocator/build/CMakeFiles/exe.dir
-/home/novak/code/C/c_allocator/build/CMakeFiles/edit_cache.dir
-/home/novak/code/C/c_allocator/build/CMakeFiles/rebuild_cache.dir

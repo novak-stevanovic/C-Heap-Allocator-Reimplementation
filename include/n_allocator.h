@@ -10,13 +10,12 @@
 #define ERR_IND 'U'
 
 extern char heap[HEAP_CAPACITY];
-extern MemChunkList allocated_chunks;
+extern MemChunkList alloced_chunks;
 extern MemChunkList free_chunks;
 
 void init();
-void* n_allocate(size_t size);
+void* n_alloc(size_t size);
 int n_free(void* ptr);
-int join_adjacent_free_chunks(size_t index);
 void print_heap();
 
 #endif
