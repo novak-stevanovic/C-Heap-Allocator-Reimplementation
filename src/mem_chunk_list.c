@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "mem_chunk_list.h"
 
 int append_chunk(MemChunkList* chunk_list, MemChunk* new_chunk) {
@@ -88,9 +89,13 @@ int find_chunk_spot_by_addr(MemChunkList* chunk_list, void* start_addr) {
 }
 
 void print_chunk_list(MemChunkList* chunk_list) {
+	if(chunk_list->current_size == 0) return;
+
 	size_t i;
-	for(i = 0; i < chunk_list->current_size; i++) {
-		printf("Chunk: %ld, starting at: %p, size: %ld, ending at: %p.\n", i, chunk_list->chunks[i].start, chunk_list->chunks[i].size, chunk_list->chunks[i].start + 
-		chunk_list->chunks[i].size);
+	for(i = 0; i < chunk_list->current_size - 1; i++) {
+		printf("size: %ld, start: %p, end: %p | ", chunk_list->chunks[i].size, chunk_list->chunks[i].start, chunk_list->chunks[i].start + chunk_list->chunks[i].size);
 	}
+	printf("size: %ld, start: %p, end: %p", chunk_list->chunks[i].size, chunk_list->chunks[i].start, chunk_list->chunks[i].start + chunk_list->chunks[i].size);
+
+	putchar('\n');
 }
