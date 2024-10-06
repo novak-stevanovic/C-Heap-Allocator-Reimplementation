@@ -9,127 +9,127 @@
 #define ATTEMPT_IMPOSSIBLE_ALLOC 0
 
 struct TestStruct {
-	int x;
-	int y;
+    int x;
+    int y;
 };
 
 void print_all() {
     printf("HEAP:\n");
     visualize_heap();
-	putchar('\n');
-	print_chunks();
+    putchar('\n');
+    print_chunks();
     PRINT_DELIMITER;
 }
 
 int main(int argc, char* argv[]) {
-	nalloc_init();
+    nalloc_init();
 
-	printf("BEGINNING:\n");
-	print_all();
+    printf("BEGINNING:\n");
+    print_all();
 
-	// alloc: string1 ---------------------------------------------------------------------
+    // alloc: string1 ---------------------------------------------------------------------
 
-	int string1_size = 7;
-	printf("Allocating string(length: %d) and filling with chars.\n", string1_size);
-	char* string1 = (char*)n_alloc(string1_size * sizeof(char));
-	if(string1 == NULL) {
-		PRINT_ALLOC_ERROR;
-		exit(1);
-	};
+    int string1_size = 7;
+    printf("Allocating string(length: %d) and filling with chars.\n", string1_size);
+    char* string1 = (char*)n_alloc(string1_size * sizeof(char));
+    if(string1 == NULL) {
+        PRINT_ALLOC_ERROR;
+        exit(1);
+    };
 
-	strcpy(string1, "nalloc");
-	string1[string1_size-1] = '\0';
+    strcpy(string1, "nalloc");
+    string1[string1_size-1] = '\0';
 
-	printf("string1: %s\n", string1);
+    printf("string1: %s\n", string1);
 
-	print_all();
+    print_all();
 
-	// alloc: array1 ---------------------------------------------------------------------
+    // alloc: array1 ---------------------------------------------------------------------
 
-	int array1_size = 12;
-	printf("Allocating int array(length: %d) and filling with ints.\n", array1_size);
-	int* array1 = (int*)n_alloc(array1_size * sizeof(int));
-	if(array1 == NULL) {
-		PRINT_ALLOC_ERROR;
-		exit(1);
-	};
+    int array1_size = 12;
+    printf("Allocating int array(length: %d) and filling with ints.\n", array1_size);
+    int* array1 = (int*)n_alloc(array1_size * sizeof(int));
+    if(array1 == NULL) {
+        PRINT_ALLOC_ERROR;
+        exit(1);
+    };
 
-	int i;
-	for(i = 0; i < array1_size; i++) array1[i] = i + 10;
+    int i;
+    for(i = 0; i < array1_size; i++) array1[i] = i + 10;
 
-	printf("array1: ");
-	for(i = 0; i < array1_size; i++) printf("%d ", array1[i]);
-	putchar('\n');
+    printf("array1: ");
+    for(i = 0; i < array1_size; i++) printf("%d ", array1[i]);
+    putchar('\n');
 
-	print_all();
+    print_all();
 
-	// alloc: teststruct1 ----------------------------------------------------------------
+    // alloc: teststruct1 ----------------------------------------------------------------
 
-	int x = 29;
-	int y = 24;
+    int x = 29;
+    int y = 24;
 
-	printf("Allocating test struct and filling with ints: %d %d.\n", x, y);
-	struct TestStruct* tst1 = (struct TestStruct*)n_alloc(sizeof(struct TestStruct));
-	if(tst1 == NULL) {
-		PRINT_ALLOC_ERROR;
-		exit(1);
-	};
+    printf("Allocating test struct and filling with ints: %d %d.\n", x, y);
+    struct TestStruct* tst1 = (struct TestStruct*)n_alloc(sizeof(struct TestStruct));
+    if(tst1 == NULL) {
+        PRINT_ALLOC_ERROR;
+        exit(1);
+    };
 
-	tst1->x = x;
-	tst1->y = y;
+    tst1->x = x;
+    tst1->y = y;
 
-	printf("test struct1 - x: %d, y: %d\n", tst1->x, tst1->y);
-	print_all();
+    printf("test struct1 - x: %d, y: %d\n", tst1->x, tst1->y);
+    print_all();
 
-	// free: array1 ----------------------------------------------------------------------
+    // free: array1 ----------------------------------------------------------------------
 
-	printf("Freeing int array(length: %d)\n", array1_size);
-	int arr1_free_status = n_free(array1);
-	if(arr1_free_status == -1) {
-		PRINT_FREE_ERROR;
-		exit(1);
-	}
+    printf("Freeing int array(length: %d)\n", array1_size);
+    int arr1_free_status = n_free(array1);
+    if(arr1_free_status == -1) {
+        PRINT_FREE_ERROR;
+        exit(1);
+    }
 
-	print_all();
+    print_all();
 
-	// free: teststruct1 -----------------------------------------------------------------
+    // free: teststruct1 -----------------------------------------------------------------
 
-	printf("Freeing test struct1\n");
-	int tst1_free_status = n_free(tst1);
-	if(arr1_free_status == -1) {
-		PRINT_FREE_ERROR;
-		exit(1);
-	}
+    printf("Freeing test struct1\n");
+    int tst1_free_status = n_free(tst1);
+    if(arr1_free_status == -1) {
+        PRINT_FREE_ERROR;
+        exit(1);
+    }
 
-	print_all();
+    print_all();
 
-	// free: string1 ---------------------------------------------------------------------
-	
-	printf("Freeing string(length: %d)\n", string1_size);
+    // free: string1 ---------------------------------------------------------------------
 
-	int str1_free_status = n_free(string1);
-	if(str1_free_status == -1) {
-		PRINT_FREE_ERROR;
-		exit(1);
-	}
+    printf("Freeing string(length: %d)\n", string1_size);
 
-	print_all();
+    int str1_free_status = n_free(string1);
+    if(str1_free_status == -1) {
+        PRINT_FREE_ERROR;
+        exit(1);
+    }
 
-	// allocate too large ----------------------------------------------------------------
+    print_all();
 
-	if(ATTEMPT_IMPOSSIBLE_ALLOC) {
-		size_t alloc_amount = sizeof(struct TestStruct) * 500;
-		printf("Allocating size: %d, even though heap capacity is: %ld\n", alloc_amount, HEAP_CAPACITY);
+    // allocate too large ----------------------------------------------------------------
 
-		struct TestStruct* tst2 = (struct TestStruct*)n_alloc(alloc_amount);
-		if(tst2 == NULL) {
-			PRINT_ALLOC_ERROR;
-			exit(1);
-		};
+    if(ATTEMPT_IMPOSSIBLE_ALLOC) {
+        size_t alloc_amount = sizeof(struct TestStruct) * 500;
+        printf("Allocating size: %d, even though heap capacity is: %ld\n", alloc_amount, HEAP_CAPACITY);
 
-		print_all();
-	}
+        struct TestStruct* tst2 = (struct TestStruct*)n_alloc(alloc_amount);
+        if(tst2 == NULL) {
+            PRINT_ALLOC_ERROR;
+            exit(1);
+        };
 
-	printf("SUCCESS\n");
-	return 0;
+        print_all();
+    }
+
+    printf("SUCCESS\n");
+    return 0;
 }
