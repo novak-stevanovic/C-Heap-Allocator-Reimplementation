@@ -5,6 +5,7 @@
 #define DEBUG_ALLOC(x) if(ENABLE_DEBUG) printf("Allocating size: %ld\n", x);
 #define DEBUG_FREE(x) if(ENABLE_DEBUG) printf("Freeing size: %ld\n", x);
 
+MemChunkList mem_chunks;
 MemChunkList alloced_chunks = {0};
 MemChunkList free_chunks = {0};
 
@@ -41,7 +42,7 @@ int shrink_free_chunk(size_t free_chunk_ind, size_t size) {
     else return -1;
 }
 
-void* n_alloc(size_t size) {
+void* nalloc(size_t size) {
     DEBUG_ALLOC(size);
     if(size == 0) return NULL;
 
@@ -54,15 +55,15 @@ void* n_alloc(size_t size) {
     int shrank_status = shrink_free_chunk(free_spot_ind, size);
     if(shrank_status == -1) return NULL;
 
-    int spot_in_alloced_list = find_chunk_spot_by_addr(&alloced_chunks, chunk_start);
-    if(spot_in_alloced_list == -1) return NULL;
+    int spot_inalloced_list = find_chunk_spot_by_addr(&alloced_chunks, chunk_start);
+    if(spot_inalloced_list == -1) return NULL;
 
     MemChunk new = {
         .start = chunk_start,
         .size = size
     };
 
-    if (insert_chunk(&alloced_chunks, &new, spot_in_alloced_list) == 0) {
+    if (insert_chunk(&alloced_chunks, &new, spot_inalloced_list) == 0) {
         return chunk_start;
     }
     else 
@@ -104,7 +105,7 @@ int join_adj_free_chunks(size_t center_chunk_ind) {
     return 0;
 }
 
-int n_free(void* ptr) {
+int nfree(void* ptr) {
     if(ptr == NULL) return -1;
 
     int removed_chunk_ind = find_chunk_ind(&alloced_chunks, ptr);
@@ -112,16 +113,16 @@ int n_free(void* ptr) {
     MemChunk* removed_chunk = &alloced_chunks.chunks[removed_chunk_ind];
     DEBUG_ALLOC(removed_chunk->size);
 
-    int ind_in_free_chunks = find_chunk_spot_by_addr(&free_chunks, ptr);
-    if(ind_in_free_chunks == -1) return -1;
+    int ind_infree_chunks = find_chunk_spot_by_addr(&free_chunks, ptr);
+    if(ind_infree_chunks == -1) return -1;
 
-    int inserted_status = insert_chunk(&free_chunks, removed_chunk, ind_in_free_chunks);
+    int inserted_status = insert_chunk(&free_chunks, removed_chunk, ind_infree_chunks);
     if(inserted_status == -1) return -1;
 
     int removed_status = remove_chunk(&alloced_chunks, removed_chunk_ind);
     if(removed_status == -1) return -1;
 
-    int joined = join_adj_free_chunks(ind_in_free_chunks);
+    int joined = join_adj_free_chunks(ind_infree_chunks);
 
     return 0;
 

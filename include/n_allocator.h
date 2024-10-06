@@ -14,8 +14,8 @@ extern MemChunkList alloced_chunks;
 extern MemChunkList free_chunks;
 
 void nalloc_init();
-void* n_alloc(size_t size);
-int n_free(void* ptr);
+void* nalloc(size_t size);
+int nfree(void* ptr);
 
 void print_chunks();
 void visualize_heap();
