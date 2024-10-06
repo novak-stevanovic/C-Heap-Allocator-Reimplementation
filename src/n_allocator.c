@@ -1,15 +1,15 @@
 #include <stdio.h>
 #include "n_allocator.h"
 
-char heap[HEAP_CAPACITY] = {0};
 MemChunkList alloced_chunks = {0};
 MemChunkList free_chunks = {0};
 
-void init() {
+void nalloc_init() {
 	MemChunk free_heap = {
 		.start = heap,
 		.size = HEAP_CAPACITY
 	};
+
 	append_chunk(&free_chunks, &free_heap);
 }
 
@@ -57,7 +57,12 @@ void* n_alloc(size_t size) {
 		.size = size
 	};
 
-	return (insert_chunk(&alloced_chunks, &new, spot_in_alloced_list) == 0 ? chunk_start : NULL);
+	if (insert_chunk(&alloced_chunks, &new, spot_in_alloced_list) == 0) {
+		mark(&new, TAKEN_IND);
+		return chunk_start;
+	}
+	else 
+		return NULL;
 }
 
 int merge_free_chunks(size_t left_chunk_ind, size_t right_chunk_ind) {
@@ -101,6 +106,7 @@ int n_free(void* ptr) {
 	int removed_chunk_ind = find_chunk_ind(&alloced_chunks, ptr);
 	if(removed_chunk_ind == -1) return -1;
 	MemChunk* removed_chunk = &alloced_chunks.chunks[removed_chunk_ind];
+	mark(removed_chunk, FREE_IND);
 
 	int ind_in_free_chunks = find_chunk_spot_by_addr(&free_chunks, ptr);
 	if(ind_in_free_chunks == -1) return -1;
@@ -115,38 +121,5 @@ int n_free(void* ptr) {
 
 	return 0;
 
-}
-
-void mark(char* start, char* end, char c) {
-	char* it;
-	int i = 0;
-	for(it = start; it < end; it++) {
-		if((*it) != UNKN_IND)
-			*it = ERR_IND;
-		else
-			*it = c;
-
-		i++;
-	}
-}
-
-void print_heap() {
-	size_t i;
-	mark(heap, heap + HEAP_CAPACITY, UNKN_IND);
-
-	for(i = 0; i < alloced_chunks.current_size; i++) {
-		MemChunk* curr_chunk = &(alloced_chunks.chunks[i]);
-		mark(curr_chunk->start, curr_chunk->start + curr_chunk->size, TAKEN_IND);
-	}
-
-	for(i = 0; i < free_chunks.current_size; i++) {
-		MemChunk* curr_chunk = &(free_chunks.chunks[i]);
-		mark(curr_chunk->start, curr_chunk->start + curr_chunk->size, FREE_IND);
-	}
-
-	for(i = 0; i < HEAP_CAPACITY; i++) {
-        printf("%c ", heap[i]);
-	}
-	putchar('\n');
 }
 

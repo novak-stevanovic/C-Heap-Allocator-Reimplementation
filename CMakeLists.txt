@@ -15,6 +15,8 @@ set(SRC
 	src/main.c
     src/n_allocator.c
 	src/mem_chunk.c
+	src/mem_chunk_list.c
+	src/heap.c
 )
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
