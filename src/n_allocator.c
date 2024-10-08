@@ -55,15 +55,15 @@ void* nalloc(size_t size) {
     int shrank_status = shrink_free_chunk(free_spot_ind, size);
     if(shrank_status == -1) return NULL;
 
-    int spot_inalloced_list = find_chunk_spot_by_addr(&alloced_chunks, chunk_start);
-    if(spot_inalloced_list == -1) return NULL;
+    int spot_in_alloced_list = find_chunk_spot_by_addr(&alloced_chunks, chunk_start);
+    if(spot_in_alloced_list == -1) return NULL;
 
     MemChunk new = {
         .start = chunk_start,
         .size = size
     };
 
-    if (insert_chunk(&alloced_chunks, &new, spot_inalloced_list) == 0) {
+    if (insert_chunk(&alloced_chunks, &new, spot_in_alloced_list) == 0) {
         return chunk_start;
     }
     else 
