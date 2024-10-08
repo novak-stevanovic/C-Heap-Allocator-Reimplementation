@@ -3,8 +3,6 @@
 
 #include <stddef.h>
 
-#define MAX_CHUNK_COUNT 50
-
 typedef struct mem_chunk {
 	void* start;
 	size_t size;

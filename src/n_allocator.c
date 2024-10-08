@@ -55,19 +55,11 @@ void* nalloc(size_t size) {
     int shrank_status = shrink_free_chunk(free_spot_ind, size);
     if(shrank_status == -1) return NULL;
 
-    int spot_in_alloced_list = find_chunk_spot_by_addr(&alloced_chunks, chunk_start);
-    if(spot_in_alloced_list == -1) return NULL;
-
     MemChunk new = {
         .start = chunk_start,
         .size = size
     };
-
-    if (insert_chunk(&alloced_chunks, &new, spot_in_alloced_list) == 0) {
-        return chunk_start;
-    }
-    else 
-        return NULL;
+    return ((insert_chunk_by_addr(&alloced_chunks, &new) != -1) ? chunk_start : NULL);
 }
 
 int merge_free_chunks(size_t left_chunk_ind, size_t right_chunk_ind) {
@@ -111,18 +103,16 @@ int nfree(void* ptr) {
     int removed_chunk_ind = find_chunk_ind(&alloced_chunks, ptr);
     if(removed_chunk_ind == -1) return -1;
     MemChunk* removed_chunk = &alloced_chunks.chunks[removed_chunk_ind];
-    DEBUG_ALLOC(removed_chunk->size);
+    DEBUG_FREE(removed_chunk->size);
 
-    int ind_infree_chunks = find_chunk_spot_by_addr(&free_chunks, ptr);
-    if(ind_infree_chunks == -1) return -1;
+    int free_chunks_index = insert_chunk_by_addr(&free_chunks, removed_chunk);
 
-    int inserted_status = insert_chunk(&free_chunks, removed_chunk, ind_infree_chunks);
-    if(inserted_status == -1) return -1;
+    if(free_chunks_index == -1) return -1;
 
     int removed_status = remove_chunk(&alloced_chunks, removed_chunk_ind);
     if(removed_status == -1) return -1;
 
-    int joined = join_adj_free_chunks(ind_infree_chunks);
+    int joined = join_adj_free_chunks(free_chunks_index);
 
     return 0;
 
