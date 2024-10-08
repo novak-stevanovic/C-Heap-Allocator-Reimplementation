@@ -37,15 +37,18 @@ int right_shift_all_from(MemChunkList* chunk_list, size_t start) {
 }
 
 int find_chunk_ind(MemChunkList* chunk_list, void* chunk_start) {
+    printf("0a");
     if(chunk_start == NULL) return -1;
 
     MemChunk *chunks = chunk_list->chunks;
     size_t current_size = chunk_list->current_size;
     size_t i;
+    printf("1a");
     for(i = 0; i < current_size; i++) {
-        if(chunks[i].start == chunk_start)
-            return i;
+        printf("%p == %p ? \n", chunk_start, chunks[i].start);
+        if(chunks[i].start == chunk_start) return i;
     }
+    printf("2a");
 
     return -1;
 }
