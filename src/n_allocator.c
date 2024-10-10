@@ -4,6 +4,7 @@
 #define ENABLE_DEBUG 1
 #define DEBUG_ALLOC(x) if(ENABLE_DEBUG) printf("Allocating size: %ld\n", x);
 #define DEBUG_FREE(x) if(ENABLE_DEBUG) printf("Freeing size: %ld\n", x);
+#define DEBUG_NREALLOC(x) if(ENABLE_DEBUG) printf("Reallocating size: %ld\n", x);
 
 MemChunkList mem_chunks;
 MemChunkList alloced_chunks = {0};
@@ -101,7 +102,7 @@ struct Adj_Free_Chunks_Object find_adj_free_chunks_for_free(size_t free_chunk_in
     int left_chunk_ind = free_chunk_ind - 1;
     int right_chunk_ind = free_chunk_ind + 1;
 
-    if((left_chunk_ind < 0) || (!are_chunks_adj(&free_chunks.chunks[left_chunk_ind], &free_chunks.chunks[free_chunk_ind])));
+    if((left_chunk_ind < 0) || (!are_chunks_adj(&free_chunks.chunks[left_chunk_ind], &free_chunks.chunks[free_chunk_ind])))
         left_chunk_ind = -1;
 
     if(((size_t)right_chunk_ind >= free_chunks.current_size) || (!are_chunks_adj(&free_chunks.chunks[right_chunk_ind], &free_chunks.chunks[free_chunk_ind])))
@@ -115,35 +116,22 @@ struct Adj_Free_Chunks_Object find_adj_free_chunks_for_free(size_t free_chunk_in
     return adj_free_chunks;
 }
 
-struct Adj_Free_Chunks_Object find_adj_free_chunks_for_alloced(MemChunk* alloced_chunk) {
+int find_adj_free_chunk_for_alloced(MemChunk* alloced_chunk) {
     // assert alloced_chunk != NULL
     size_t i;
-    size_t left_closest_ind = -1;
     size_t right_closest_ind = -1;
 
     MemChunk* curr_chunk;
     for(i = 0; i < free_chunks.current_size; i++) {
         curr_chunk = &free_chunks.chunks[i];
-        if(get_left_chunk(curr_chunk, alloced_chunk) == curr_chunk)
-            left_closest_ind = i;
-        else if(get_right_chunk(curr_chunk, alloced_chunk) == curr_chunk) {
+        if(get_right_chunk(curr_chunk, alloced_chunk) == curr_chunk) {
             right_closest_ind = i;
             break;
         }
     }
 
-    if(!are_chunks_adj(&free_chunks.chunks[left_closest_ind], alloced_chunk))
-        left_closest_ind = -1;
+    return (are_chunks_adj(alloced_chunk, &free_chunks.chunks[right_closest_ind]) ? right_closest_ind : -1);
 
-    if(!are_chunks_adj(&free_chunks.chunks[right_closest_ind], alloced_chunk))
-        right_closest_ind = -1;
-        
-    struct Adj_Free_Chunks_Object adj_free_chunks = {
-        .left_ind = left_closest_ind,
-        .right_ind = right_closest_ind
-    };
-
-    return adj_free_chunks;
 }
 
 int merge_adj_free_chunks(size_t center_chunk_ind) {
@@ -158,100 +146,92 @@ int merge_adj_free_chunks(size_t center_chunk_ind) {
     return 0;
 }
 
-int nfree(void* ptr) {
-    if(ptr == NULL) return -1;
-
-    int removed_chunk_ind = find_chunk_ind(&alloced_chunks, ptr);
-    if(removed_chunk_ind == -1) return -1;
+void nfree_by_ind(size_t removed_chunk_ind) {
 
     DEBUG_FREE(alloced_chunks.chunks[removed_chunk_ind].size);
 
     MemChunk removed_chunk_cpy = alloced_chunks.chunks[removed_chunk_ind];
 
     int removed_status = remove_chunk(&alloced_chunks, removed_chunk_ind);
-    if(removed_status == -1) return -1;
+    if(removed_status == -1) return;
 
     int free_chunks_ind = insert_chunk_by_addr(&free_chunks, &removed_chunk_cpy);
-    if(free_chunks_ind == -1) return -1;
+    if(free_chunks_ind == -1) return;
 
     int merged = merge_adj_free_chunks(free_chunks_ind);
 
+}
+
+int nfree(void* ptr) {
+    if(ptr == NULL) return -1;
+
+    int removed_chunk_ind = find_chunk_ind(&alloced_chunks, ptr);
+    if(removed_chunk_ind == -1) return -1;
+
+    nfree_by_ind(removed_chunk_ind);
+
     return 0;
-
 }
 
-int check_expn_of_alloced_into_adj_free(size_t expn_amount, struct Adj_Free_Chunks_Object adj_free_chunks) {
-    size_t adj_sum = 0;
+void cpy_chunk_content(MemChunk* chunk, void* new_start) {
+    char* it = (char*)chunk->start;
+    char* it_new = (char*)new_start;
+    void* end = chunk->start + chunk->size;
 
-    if(adj_free_chunks.left_ind != -1) adj_sum += free_chunks.chunks[adj_free_chunks.left_ind].size;
-    if(adj_free_chunks.right_ind != -1) adj_sum += free_chunks.chunks[adj_free_chunks.right_ind].size;
-
-    return ((expn_amount <= adj_sum) ? 1 : 0);
+    for(; it < (char*)end; it++, it_new++)
+       (*it_new) = (*it);
 }
 
-int expn_alloced_chunk_into_adj_free(MemChunk* alloced_chunk, struct Adj_Free_Chunks_Object adj_free_chunks, size_t expn_amount) {
+void* handle_nrealloc_expn(size_t chunk_for_nrealloc_ind, size_t new_size) {
+    MemChunk* chunk_for_nrealloc = &alloced_chunks.chunks[chunk_for_nrealloc_ind];
+    int right_chunk_ind = find_adj_free_chunk_for_alloced(chunk_for_nrealloc);
 
-    //assert expn_amount != 0
-    
-    int left_chunk_ind = adj_free_chunks.left_ind;
-    int right_chunk_ind = adj_free_chunks.right_ind;
+    size_t expn_amount = new_size - chunk_for_nrealloc->size;
 
-    MemChunk* left_chunk = ((left_chunk_ind != -1) ? &free_chunks.chunks[left_chunk_ind] : NULL);
-    MemChunk* right_chunk = ((right_chunk_ind != -1) ? &free_chunks.chunks[right_chunk_ind] : NULL);
-    
-    size_t expn_amount_into_left_chunk = 0, expn_amount_into_right_chunk = 0;
-    if(left_chunk != NULL) {
-        if(left_chunk->size >= expn_amount)
-            expn_amount_into_left_chunk = expn_amount;
-        else
-            expn_amount_into_left_chunk = left_chunk->size;
+    void* new_ptr;
 
-        expn_amount -= expn_amount_into_left_chunk;
+    if((right_chunk_ind != -1) && (free_chunks.chunks[right_chunk_ind].size >= (size_t)expn_amount)) {
+        // assert right_chunk_ind ?  ^
+        expand_chunk_into(chunk_for_nrealloc, right_chunk_ind, &free_chunks, expn_amount);
+        new_ptr = chunk_for_nrealloc->start;
+    }
+    else {
+        nfree_by_ind(chunk_for_nrealloc_ind);
+        new_ptr = nalloc(new_size);
+        if(new_ptr != NULL) cpy_chunk_content(chunk_for_nrealloc, new_ptr);
     }
 
-    if(right_chunk != NULL) {
-        if(right_chunk->size >= expn_amount)
-            expn_amount_into_right_chunk = expn_amount;
-        else
-            expn_amount_into_right_chunk = right_chunk->size;
-        expn_amount -= expn_amount_into_right_chunk;
-    }
+    return new_ptr;
+}
 
-    // assert expn_amount = 0;
+void* handle_nrealloc_shr(MemChunk* chunk_for_nrealloc, size_t shr_amount) {
+    chunk_for_nrealloc->size -= shr_amount;
 
-    //expand_chunk(MemChunk* chunk_for_expn, size_t chunk_to_expn_into_ind, MemChunkList* chunk_to_expand_into_list, size_t expn_amount)
-    if(right_chunk != NULL)
-        expand_chunk_into(alloced_chunk, right_chunk_ind, &free_chunks, expn_amount_into_right_chunk);
-    if(left_chunk != NULL) {
-        expand_chunk_into(alloced_chunk, left_chunk_ind, &free_chunks, expn_amount_into_left_chunk);
-    }
+    MemChunk new_free_chunk = {
+        .start = chunk_for_nrealloc->start + chunk_for_nrealloc->size,
+        .size = shr_amount
+    };
 
+    int new_free_chunk_ind = insert_chunk_by_addr(&free_chunks, &new_free_chunk);
+    merge_adj_free_chunks(new_free_chunk_ind);
+
+    return chunk_for_nrealloc->start;
 }
 
 void* nrealloc(void* ptr, size_t new_size) {
     if(ptr == NULL) return NULL;
+    DEBUG_NREALLOC(new_size);
        
-    printf("0\n");
-    int chunk_index = find_chunk_ind(&alloced_chunks, ptr);
-    printf("05\n");
-    if(chunk_index == -1) return NULL;
-    printf("1\n");
+    int chunk_for_nrealloc_ind = find_chunk_ind(&alloced_chunks, ptr);
+    if(chunk_for_nrealloc_ind == -1) return NULL;
 
-    MemChunk* chunk_for_nrealloc = &alloced_chunks.chunks[chunk_index];
+    MemChunk* chunk_for_nrealloc = &alloced_chunks.chunks[chunk_for_nrealloc_ind];
 
-    struct Adj_Free_Chunks_Object adj_free_chunks = find_adj_free_chunks_for_alloced(chunk_for_nrealloc);
-    printf("2\n");
+    int expn_amount = new_size - chunk_for_nrealloc->size;
+    if(expn_amount == 0) return ptr;
 
-    size_t expn_amount = new_size - chunk_for_nrealloc->size;
-    printf("3\n");
+    return ((expn_amount > 0) ? handle_nrealloc_expn(chunk_for_nrealloc_ind, new_size) : handle_nrealloc_shr(chunk_for_nrealloc, -expn_amount));
 
-    if(check_expn_of_alloced_into_adj_free(expn_amount, adj_free_chunks)) {
-        expn_alloced_chunk_into_adj_free(chunk_for_nrealloc, adj_free_chunks, expn_amount);
-        printf("4\n");
-    }
-    printf("5\n");
-
-    return ptr;
 }
 
 void print_chunks() {

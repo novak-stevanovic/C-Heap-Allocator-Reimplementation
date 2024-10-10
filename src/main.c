@@ -24,6 +24,7 @@ void print_all() {
 int main(int argc, char* argv[]) {
     nalloc_init();
 
+
     printf("BEGINNING:\n");
     print_all();
 
@@ -65,83 +66,71 @@ int main(int argc, char* argv[]) {
 
     // alloc: teststruct1 ----------------------------------------------------------------
 
-    //int x = 29;
-    //int y = 24;
-//
-    //printf("Allocating test struct and filling with ints: %d %d.\n", x, y);
-    //struct TestStruct* tst1 = (struct TestStruct*)nalloc(sizeof(struct TestStruct));
-    //if(tst1 == NULL) {
-        //PRINT_ALLOC_ERROR;
-        //exit(1);
-    //};
-//
-    //tst1->x = x;
-    //tst1->y = y;
-//
-    //printf("test struct1 - x: %d, y: %d\n", tst1->x, tst1->y);
-    //print_all();
+    int x = 29;
+    int y = 24;
 
-    printf("Reallocing array1\n");
+    printf("Allocating test struct and filling with ints: %d %d.\n", x, y);
+    struct TestStruct* tst1 = (struct TestStruct*)nalloc(sizeof(struct TestStruct));
+    if(tst1 == NULL) {
+        PRINT_ALLOC_ERROR;
+        exit(1);
+    };
 
-    printf("bef: %p\n", array1);
-    array1 = (int*)nrealloc(array1, sizeof(int) * 12 + 10);
-    int it;
-    printf("ARRAY: ");
-    for(it = 0; it < 12; it++) {
-        printf("%d ", array1[it]);
-    }
-    putchar('\n');
+    tst1->x = x;
+    tst1->y = y;
+
+    printf("test struct1 - x: %d, y: %d\n", tst1->x, tst1->y);
     print_all();
 
-    //// free: array1 ----------------------------------------------------------------------
-//
-    //printf("Freeing int array(length: %d)\n", array1_size);
-    //int arr1_free_status = nfree(array1);
-    //if(arr1_free_status == -1) {
-        //PRINT_FREE_ERROR;
-        //exit(1);
-    //}
-//
-    //print_all();
-//
-    //// free: teststruct1 -----------------------------------------------------------------
-//
-    //printf("Freeing test struct1\n");
-    //int tst1_free_status = nfree(tst1);
-    //if(tst1_free_status == -1) {
-        //PRINT_FREE_ERROR;
-        //exit(1);
-    //}
-//
-    //print_all();
-//
-    //// free: string1 ---------------------------------------------------------------------
-//
-    //printf("Freeing string(length: %d)\n", string1_size);
-//
-    //int str1_free_status = nfree(string1);
-    //if(str1_free_status == -1) {
-        //PRINT_FREE_ERROR;
-        //exit(1);
-    //}
-//
-    //print_all();
-//
-    //// allocate too large ----------------------------------------------------------------
-//
-    //if(ATTEMPT_IMPOSSIBLE_ALLOC) {
-        //size_t alloc_amount = sizeof(struct TestStruct) * 500;
-        //printf("Allocating size: %ld, even though heap capacity is: %ld\n", alloc_amount, HEAP_CAPACITY);
-//
-        //struct TestStruct* tst2 = (struct TestStruct*)nalloc(alloc_amount);
-        //if(tst2 == NULL) {
-            //PRINT_ALLOC_ERROR;
-            //exit(1);
-        //};
-//
-        //print_all();
-    //}
+    // free: array1 ----------------------------------------------------------------------
 
+    printf("Freeing int array(length: %d)\n", array1_size);
+    int arr1_free_status = nfree(array1);
+    if(arr1_free_status == -1) {
+        PRINT_FREE_ERROR;
+        exit(1);
+    }
+
+    print_all();
+
+    // free: teststruct1 -----------------------------------------------------------------
+
+    printf("Freeing test struct1\n");
+    int tst1_free_status = nfree(tst1);
+    if(tst1_free_status == -1) {
+        PRINT_FREE_ERROR;
+        exit(1);
+    }
+
+    print_all();
+
+    // free: string1 ---------------------------------------------------------------------
+
+    printf("Freeing string(length: %d)\n", string1_size);
+
+    int str1_free_status = nfree(string1);
+    if(str1_free_status == -1) {
+        PRINT_FREE_ERROR;
+        exit(1);
+    }
+
+    print_all();
+
+    // allocate too large ----------------------------------------------------------------
+
+    if(ATTEMPT_IMPOSSIBLE_ALLOC) {
+        size_t alloc_amount = sizeof(struct TestStruct) * 500;
+        printf("Allocating size: %ld, even though heap capacity is: %ld\n", alloc_amount, HEAP_CAPACITY);
+
+        struct TestStruct* tst2 = (struct TestStruct*)nalloc(alloc_amount);
+        if(tst2 == NULL) {
+            PRINT_ALLOC_ERROR;
+            exit(1);
+        };
+
+        print_all();
+    }
+    
     printf("SUCCESS\n");
     return 0;
 }
