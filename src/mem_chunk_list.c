@@ -2,6 +2,12 @@
 #include "mem_chunk_list.h"
 #include "misc.h"
 
+void init_chunk_list(MemChunkList* chunk_list, size_t cap, MemChunk* chunk_array) {
+    chunk_list->size = 0;
+    chunk_list->cap = cap;
+    chunk_list->chunks = chunk_array;
+}
+
 int append_chunk(MemChunkList* chunk_list, MemChunk* new_chunk) {
     if((new_chunk == NULL) || (chunk_list->size >= chunk_list->cap)) return -1;
 

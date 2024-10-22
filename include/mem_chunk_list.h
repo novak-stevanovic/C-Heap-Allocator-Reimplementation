@@ -10,6 +10,7 @@ typedef struct mem_chunk_list {
 	MemChunk *chunks; // ptr to static array
 } MemChunkList;
 
+void init_chunk_list(MemChunkList* chunk_list, size_t cap, MemChunk* chunk_array);
 int append_chunk(MemChunkList* chunk_list, MemChunk* new_chunk);
 int insert_chunk_by_addr(MemChunkList* chunk_list, MemChunk* new_chunk); 
 int find_chunk_ind(MemChunkList* chunk_list, void* chunk_start);

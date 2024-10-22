@@ -13,22 +13,12 @@
 MemChunk alloced_chunks_array[MAX_ALLOCED_CHUNKS];
 MemChunk free_chunks_array[MAX_FREE_CHUNKS];
 
-MemChunkList mem_chunks;
 MemChunkList alloced_chunks;
 MemChunkList free_chunks;
 
 void nalloc_init() {
-    alloced_chunks = (MemChunkList) {
-        .size = 0,
-        .cap = MAX_ALLOCED_CHUNKS,
-        .chunks = alloced_chunks_array
-    };
-
-    free_chunks = (MemChunkList) {
-        .size = 0,
-        .cap = MAX_FREE_CHUNKS,
-        .chunks = free_chunks_array
-    };
+    init_chunk_list(&alloced_chunks, MAX_ALLOCED_CHUNKS, alloced_chunks_array);
+    init_chunk_list(&free_chunks, MAX_FREE_CHUNKS, free_chunks_array);
 
     MemChunk free_heap = {
         .start = heap,
