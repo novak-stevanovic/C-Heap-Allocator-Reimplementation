@@ -28,6 +28,6 @@ elif [[ $1 == "run" ]]; then
 	./exe
 	cd ".."
 else
-	echo "Wrong argument. Use cln, cmp or run. Exiting."
+	echo "Wrong argument. Use cln, cmk, mk or run. Exiting."
 	exit 1
 fi
