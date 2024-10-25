@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 #include "n_allocator.h"
+#include "n_allocator_printer.h"
 
 #define PRINT_DELIMITER printf("-----------------------------------------------------------------------------------------\n")
 #define PRINT_ALLOC_ERROR printf("Error when allocating. Exiting.\n")
@@ -65,6 +65,7 @@ int main(int argc, char* argv[]) {
     print_chunks();
     printf("imposs realloc result: %p\n", temp);
     array = nrealloc(array, 500);
+    print_chunks();
 
     char* s2 = nalloc(600);
     s2[599] = '\0';

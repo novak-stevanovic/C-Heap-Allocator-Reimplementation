@@ -5,9 +5,9 @@
 #include "mem_chunk.h"
 
 typedef struct mem_chunk_list {
-	size_t size;
+    size_t size;
     size_t cap;
-	MemChunk *chunks; // ptr to static array
+    MemChunk *chunks; // ptr to static array
 } MemChunkList;
 
 void init_chunk_list(MemChunkList* chunk_list, size_t cap, MemChunk* chunk_array);
