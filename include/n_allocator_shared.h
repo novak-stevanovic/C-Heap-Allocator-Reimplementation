@@ -1,5 +1,5 @@
-#ifndef N_ALLOCATOR_INTERNAL_H
-#define N_ALLOCATOR_INTERNAL_H
+#ifndef N_ALLOCATOR_SHARED_H
+#define N_ALLOCATOR_SHARED_H
 
 #include "mem_chunk_list.h"
 

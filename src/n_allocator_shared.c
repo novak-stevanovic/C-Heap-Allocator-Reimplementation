@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "n_allocator_internal.h"
+#include "n_allocator_shared.h"
 #include "misc.h"
 
 void shrink_chunk(size_t chunk_for_shr_ind, MemChunkList* chunk_for_shr_list, size_t shr_amount) {

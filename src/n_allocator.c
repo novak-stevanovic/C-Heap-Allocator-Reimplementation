@@ -3,7 +3,7 @@
 #include "n_allocator.h"
 #include "misc.h"
 #include "n_reallocator.h"
-#include "n_allocator_internal.h"
+#include "n_allocator_shared.h"
 #include "heap.h"
 
 #define MAX_ALLOCED_CHUNKS 50

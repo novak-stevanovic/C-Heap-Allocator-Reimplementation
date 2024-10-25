@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "n_allocator_printer.h"
-#include "n_allocator_internal.h"
+#include "n_allocator_shared.h"
 #include "heap.h"
 
 void print_chunks() {

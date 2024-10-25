@@ -3,7 +3,7 @@
 #include "mem_chunk.h"
 #include "mem_chunk_list.h"
 #include "n_allocator.h"
-#include "n_allocator_internal.h"
+#include "n_allocator_shared.h"
 
 void* handle_partial_nrealloc_expn(MemChunk* chunk_for_nrealloc, size_t right_chunk_ind, size_t expn_amount) {
     ASSERT((size_t)right_chunk_ind < free_chunks.size, "Invalid right chunk index in free chunks list.");

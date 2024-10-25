@@ -17,7 +17,7 @@ set(SRC
     src/mem_chunk.c
     src/mem_chunk_list.c
     src/heap.c
-    src/n_allocator_internal.c
+    src/n_allocator_shared.c
     src/n_reallocator.c
     src/n_allocator_printer.c
 )
