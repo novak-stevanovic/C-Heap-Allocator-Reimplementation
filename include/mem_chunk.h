@@ -4,8 +4,8 @@
 #include <stddef.h>
 
 typedef struct mem_chunk {
-	void* start;
-	size_t size;
+    void* start;
+    size_t size;
 } MemChunk;
 
 int are_chunks_adj(MemChunk* chunk1, MemChunk* chunk2);

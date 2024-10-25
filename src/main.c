@@ -6,7 +6,6 @@
 #define PRINT_DELIMITER printf("-----------------------------------------------------------------------------------------\n")
 #define PRINT_ALLOC_ERROR printf("Error when allocating. Exiting.\n")
 #define PRINT_FREE_ERROR printf("Error when freeing. Exiting.\n")
-#define ATTEMPT_IMPOSSIBLE_ALLOC 0
 
 struct TestStruct {
     int x;
@@ -24,113 +23,68 @@ void print_all() {
 int main(int argc, char* argv[]) {
     nalloc_init();
 
+    printf("BEGINNING STATE:\n");
+    print_chunks();
 
-    printf("BEGINNING:\n");
-    print_all();
-
-    // alloc: string1 ---------------------------------------------------------------------
-
-    int string1_size = 7;
-    printf("Allocating string(length: %d) and filling with chars.\n", string1_size);
-    char* string1 = (char*)nalloc(string1_size * sizeof(char));
-    if(string1 == NULL) {
-        PRINT_ALLOC_ERROR;
-        exit(1);
-    };
-
-    strcpy(string1, "nalloc");
-    string1[string1_size-1] = '\0';
-
-    printf("string1: %s\n", string1);
-
-    print_all();
-
-    // alloc: array1 ---------------------------------------------------------------------
-
-    int array1_size = 12;
-    printf("Allocating int array(length: %d) and filling with ints.\n", array1_size);
-    int* array1 = (int*)nalloc(array1_size * sizeof(int));
-    if(array1 == NULL) {
-        PRINT_ALLOC_ERROR;
-        exit(1);
-    };
-
-    int i;
-    for(i = 0; i < array1_size; i++) array1[i] = i + 10;
-
-    printf("array1: ");
-    for(i = 0; i < array1_size; i++) printf("%d ", array1[i]);
-    putchar('\n');
-
-    print_all();
-
-    // alloc: teststruct1 ----------------------------------------------------------------
-
-    int x = 29;
-    int y = 24;
-
-    printf("Allocating test struct and filling with ints: %d %d.\n", x, y);
-    struct TestStruct* tst1 = (struct TestStruct*)nalloc(sizeof(struct TestStruct));
-    if(tst1 == NULL) {
-        PRINT_ALLOC_ERROR;
-        exit(1);
-    };
-
-    tst1->x = x;
-    tst1->y = y;
-
-    printf("test struct1 - x: %d, y: %d\n", tst1->x, tst1->y);
-    print_all();
-
-    // free: array1 ----------------------------------------------------------------------
-
-    printf("Freeing int array(length: %d)\n", array1_size);
-    int arr1_free_status = nfree(array1);
-    if(arr1_free_status == -1) {
-        PRINT_FREE_ERROR;
-        exit(1);
+    int* array = (int*)nalloc(sizeof(int) * 250);
+    if(array) {
+        for(int j = 0; j < 1000; j++) {
+            array[j] = j * 134;
+        }
+        for(int j = 0; j < 1000; j++) {
+            printf("%d ", array[j]);
+        }
+        putchar('\n');
+        print_chunks();
     }
 
-    print_all();
+    char* s = (char*)nalloc(2000);
+    if(s) {
+        for(int j = 0; j < 2000-1; j++) {
+            s[j] = j % 26 + 'a';
+        }
 
-    // free: teststruct1 -----------------------------------------------------------------
-
-    printf("Freeing test struct1\n");
-    int tst1_free_status = nfree(tst1);
-    if(tst1_free_status == -1) {
-        PRINT_FREE_ERROR;
-        exit(1);
+        s[2000-1] = '\0';
+        for(int j = 0; j < 2000; j++) {
+            printf("%c ", s[j]);
+        }
+        putchar('\n');
+        print_chunks();
     }
 
-    print_all();
+    s = nrealloc(s, 500);
+    print_chunks();
 
-    // free: string1 ---------------------------------------------------------------------
+    array = nrealloc(array, 500);
+    print_chunks();
+    array = nrealloc(array, 1000);
+    print_chunks();
+    array = nrealloc(array, 1500);
+    print_chunks();
+    int* temp = nrealloc(array, 1501);
+    print_chunks();
+    printf("imposs realloc result: %p\n", temp);
+    array = nrealloc(array, 500);
 
-    printf("Freeing string(length: %d)\n", string1_size);
+    char* s2 = nalloc(600);
+    s2[599] = '\0';
+    print_chunks();
 
-    int str1_free_status = nfree(string1);
-    if(str1_free_status == -1) {
-        PRINT_FREE_ERROR;
-        exit(1);
-    }
+    char* s3 = nalloc(133);
+    char* s4 = nalloc(133);
+    char* s5 = nalloc(134);
+    print_chunks();
 
-    print_all();
-
-    // allocate too large ----------------------------------------------------------------
-
-    if(ATTEMPT_IMPOSSIBLE_ALLOC) {
-        size_t alloc_amount = sizeof(struct TestStruct) * 500;
-        printf("Allocating size: %ld, even though heap capacity is: %ld\n", alloc_amount, HEAP_CAPACITY);
-
-        struct TestStruct* tst2 = (struct TestStruct*)nalloc(alloc_amount);
-        if(tst2 == NULL) {
-            PRINT_ALLOC_ERROR;
-            exit(1);
-        };
-
-        print_all();
-    }
-
-    printf("SUCCESS\n");
-    return 0;
+    nfree(s2);
+    print_chunks();
+    nfree(s4);
+    print_chunks();
+    nfree(s3);
+    print_chunks();
+    nfree(array);
+    print_chunks();
+    nfree(s);
+    print_chunks();
+    nfree(s5);
+    print_chunks();
 }

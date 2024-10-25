@@ -91,7 +91,7 @@ void print_chunk_list(MemChunkList* chunk_list) {
     size_t i;
     for(i = 0; i < chunk_list->size - 1; i++) {
         printf("size: %ld, start: %p, end: %p | ", chunk_list->chunks[i].size, chunk_list->chunks[i].start, chunk_list->chunks[i].start + chunk_list->chunks[i].size);
-    }
+    }    
     printf("size: %ld, start: %p, end: %p", chunk_list->chunks[i].size, chunk_list->chunks[i].start, chunk_list->chunks[i].start + chunk_list->chunks[i].size);
 
     putchar('\n');

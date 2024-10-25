@@ -197,29 +197,43 @@ void cpy_chunk_content(MemChunk* chunk, void* new_start) {
        (*it_new) = (*it);
 }
 
+void* handle_partial_nrealloc_expn(MemChunk* chunk_for_nrealloc, size_t right_chunk_ind, size_t expn_amount) {
+    ASSERT((size_t)right_chunk_ind < free_chunks.size, "Invalid right chunk index in free chunks list.");
+    expn_chunk_into(chunk_for_nrealloc, right_chunk_ind, &free_chunks, expn_amount);
+    return chunk_for_nrealloc->start;
+}
+
+void* handle_complete_nrealloc_expn(size_t chunk_for_nrealloc_ind, size_t new_size) {
+    MemChunk* chunk_for_nrealloc = &alloced_chunks.chunks[chunk_for_nrealloc_ind];
+    void* new_ptr;
+
+    if((free_chunks.size < free_chunks.cap) && (alloced_chunks.size < alloced_chunks.cap)) { // free_chunks and alloced_chunks are not at max capacity
+        if(alloced_chunks.size >= alloced_chunks.cap) new_ptr = NULL; // if no more chunks can be alloced, don't do anything
+        else {
+            new_ptr = nalloc(new_size);
+            if(new_ptr != NULL) {
+                nfree_by_ind(chunk_for_nrealloc_ind);
+
+                if(new_ptr != NULL) cpy_chunk_content(chunk_for_nrealloc, new_ptr);
+            }
+        }
+
+    }
+    else new_ptr = NULL; // if they are, new_ptr stays null
+
+    return new_ptr;
+}
+
 void* handle_nrealloc_expn(size_t chunk_for_nrealloc_ind, size_t new_size) {
     MemChunk* chunk_for_nrealloc = &alloced_chunks.chunks[chunk_for_nrealloc_ind];
     int right_chunk_ind = find_adj_free_chunk_for_alloced(chunk_for_nrealloc);
 
     size_t expn_amount = new_size - chunk_for_nrealloc->size;
 
-    void* new_ptr = NULL;
-
-    if((right_chunk_ind != -1) && (free_chunks.chunks[right_chunk_ind].size >= (size_t)expn_amount)) { // free chunk right of expanding chunk exists and has enough size
-        ASSERT((size_t)right_chunk_ind < free_chunks.size, "Invalid right chunk index in free chunks list.");
-        expn_chunk_into(chunk_for_nrealloc, right_chunk_ind, &free_chunks, expn_amount);
-        new_ptr = chunk_for_nrealloc->start;
-    }
-    else { // complete reallocation 
-        if((free_chunks.size < free_chunks.cap) && (alloced_chunks.size < alloced_chunks.cap)) { // free_chunks and alloced_chunks are not at max capacity
-            nfree_by_ind(chunk_for_nrealloc_ind);
-            new_ptr = nalloc(new_size);
-            if(new_ptr != NULL) cpy_chunk_content(chunk_for_nrealloc, new_ptr);
-        }
-        // if they are, new_ptr stays null
-    }
-
-    return new_ptr;
+    if((right_chunk_ind != -1) && (free_chunks.chunks[right_chunk_ind].size >= (size_t)expn_amount)) // free chunk right of expanding chunk exists and has enough size
+        return handle_partial_nrealloc_expn(chunk_for_nrealloc, right_chunk_ind, expn_amount);
+    else // complete reallocation 
+        return handle_complete_nrealloc_expn(chunk_for_nrealloc_ind, new_size);
 }
 
 void* handle_nrealloc_shr(MemChunk* chunk_for_nrealloc, size_t shr_amount) {
