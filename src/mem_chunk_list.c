@@ -44,11 +44,13 @@ int right_shift_all_from(MemChunkList* chunk_list, size_t start) {
     return 0;
 }
 
+#define BSEARCH_ERR -2
+
 int bsearch_prev_ind(MemChunkList* chunk_list, void* chunk_start) {
-    if(chunk_start == NULL) return -1;
+    if(chunk_start == NULL) return BSEARCH_ERR;
 
     size_t current_size = chunk_list->size;
-    if(current_size == chunk_list->cap) return -1;
+    if(current_size == chunk_list->cap) return BSEARCH_ERR;
 
     MemChunk *chunks = chunk_list->chunks;
 
@@ -70,6 +72,7 @@ int find_chunk_ind(MemChunkList* chunk_list, void* chunk_start) {
     if(chunk_start == NULL) return -1;
 
     int bsearch_status = bsearch_prev_ind(chunk_list, chunk_start);
+    ASSERT(bsearch_status != BSEARCH_ERR, "Binary search error.");
     int potential_ind = bsearch_status + 1;
     ASSERT(potential_ind >= 0, "Potential index must be non-negative.");
     ASSERT((size_t)potential_ind < chunk_list->size, "Potential index value must be less than size of chunk list. ");
@@ -78,6 +81,7 @@ int find_chunk_ind(MemChunkList* chunk_list, void* chunk_start) {
 
 int remove_chunk(MemChunkList* chunk_list, size_t removed_chunk_index) {
     ASSERT(removed_chunk_index < chunk_list->size, "Failed removing chunk: invalid index.");
+
     if(left_shift_all_after(chunk_list, removed_chunk_index) == 0) {
         chunk_list->size--;
         return 0;
@@ -92,6 +96,7 @@ int insert_chunk_by_addr(MemChunkList* chunk_list, MemChunk* new_chunk) {
     if(current_size == chunk_list->cap) return -1;
 
     int bsearch_status = bsearch_prev_ind(chunk_list, new_chunk->start);
+    ASSERT(bsearch_status != BSEARCH_ERR, "Binary search error.");
     int ind = bsearch_status + 1;
     ASSERT(ind >= 0, "Potential index must be non-negative.");
 
