@@ -43,3 +43,8 @@ void visualize_heap() {
     for(; alloced_count < alloced_chunks.size; alloced_count++)
         visualize_chunk(&alloced_chunks.chunks[alloced_count], ALLOCED_IND);
 }
+
+void print_chunk_count() {
+    printf("ALLOCED CHUNKS: %ld\n", alloced_chunks.size);
+    printf("FREE CHUNKS: %ld\n", free_chunks.size);
+}

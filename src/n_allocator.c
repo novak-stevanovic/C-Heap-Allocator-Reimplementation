@@ -6,8 +6,8 @@
 #include "n_allocator_shared.h"
 #include "heap.h"
 
-#define MAX_ALLOCED_CHUNKS 50
-#define MAX_FREE_CHUNKS 50
+#define MAX_ALLOCED_CHUNKS 500000
+#define MAX_FREE_CHUNKS 500000
 
 #define ENABLE_DEBUG 1
 #define DEBUG_ALLOC(x) if(ENABLE_DEBUG) printf("Allocating size: %ld\n", x);

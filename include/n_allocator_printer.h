@@ -8,5 +8,6 @@
 
 void print_chunks();
 void visualize_heap();
+void print_chunk_count();
 
 #endif

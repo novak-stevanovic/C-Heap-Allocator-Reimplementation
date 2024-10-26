@@ -63,7 +63,6 @@ int main(int argc, char* argv[]) {
     print_chunks();
     int* temp = nrealloc(array, 1501);
     print_chunks();
-    printf("imposs realloc result: %p\n", temp);
     array = nrealloc(array, 500);
     print_chunks();
 

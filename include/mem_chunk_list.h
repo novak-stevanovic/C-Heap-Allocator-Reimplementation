@@ -13,6 +13,7 @@ typedef struct mem_chunk_list {
 void init_chunk_list(MemChunkList* chunk_list, size_t cap, MemChunk* chunk_array);
 int append_chunk(MemChunkList* chunk_list, MemChunk* new_chunk);
 int insert_chunk_by_addr(MemChunkList* chunk_list, MemChunk* new_chunk); 
+int bsearch_prev_ind(MemChunkList* chunk_list, void* chunk_start);
 int find_chunk_ind(MemChunkList* chunk_list, void* chunk_start);
 int remove_chunk(MemChunkList* chunk_list, size_t removed_chunk_index);
 void print_chunk_list(MemChunkList* chunk_list);
